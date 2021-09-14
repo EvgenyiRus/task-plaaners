@@ -15,6 +15,21 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // spring + jpa/hibernate
+	implementation 'org.springframework.boot:spring-boot-starter-web' // веб технологии
+	implementation 'org.springframework.boot:spring-boot-starter-security' // безопасность
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // валидация объектов - начиная с springboot 2.3 нужно подключать отдельно (раньше библиотека подключалась автоматически)
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1' // библиотека для работы с jwt
+	// https://mvnrepository.com/artifact/org.postgresql/postgresql
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23' // коннектор для БД PostgreSQL
+
+	// https://projectlombok.org/setup/gradle
+	compileOnly 'org.projectlombok:lombok:1.18.12'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
 }
 
 test {
