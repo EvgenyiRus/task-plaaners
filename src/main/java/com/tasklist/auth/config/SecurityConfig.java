@@ -11,7 +11,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable(); // отключаем на время разработки(для post put и др. которые изменяют данные)
+        /* если используется другая клиентская технология (не SpringMVC, а например Angular, React и пр.),
+            то выключаем встроенную Spring-защиту от CSRF атак,
+            иначе запросы от клиента не будут обрабатываться, т.к. Spring Security будет пытаться в каждом входящем запроcе искать спец. токен для защиты от CSRF
+        */
+        http.csrf().disable(); // отключаем на время разработки(для методов post put и др.
+                                // которые изменяют данные, будут без ошибок)
         http.httpBasic().disable(); //отключаем стандартную авторизацию Spring
         http.formLogin().disable(); //отключаем стандартную форму логирования
         http.requiresChannel().anyRequest().requiresSecure(); //Обязательное исп. HTTPS
