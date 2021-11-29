@@ -3,9 +3,12 @@ package com.tasklist.development.service;
 import com.tasklist.development.entity.Task;
 import com.tasklist.development.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,5 +38,10 @@ public class TaskService {
 
     public void delete (Long id) {
         taskRepository.deleteById(id);
+    }
+
+    public Page<Task> find (String title, Short completed, Long priorityId,
+                            Long categoryId, Date dateFrom, Date dateTo, String email, PageRequest request) {
+        return taskRepository.find(title, completed, priorityId, categoryId, dateFrom, dateTo, email, request);
     }
 }

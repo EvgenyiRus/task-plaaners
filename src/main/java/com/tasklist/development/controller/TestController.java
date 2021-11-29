@@ -4,11 +4,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("test")
+@RequestMapping
 public class TestController {
 
-    @RequestMapping("test1")
+    @RequestMapping("test")
     private String test(){
-        return "work";
+        return "Service is work";
     }
 }

@@ -1,14 +1,19 @@
 package com.tasklist.development.controller;
 
 import com.tasklist.development.entity.Task;
+import com.tasklist.development.search.TaskSearchValues;
 import com.tasklist.development.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -89,5 +94,35 @@ public class TaskController {
             return new ResponseEntity("Category by id " + id + " not found", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(task);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<Page<Task>> search(@RequestBody TaskSearchValues taskSearchValues) {
+        String title = taskSearchValues.getTitle();
+        String email = taskSearchValues.getEmail();
+        Long priorityId = taskSearchValues.getPriorityId();
+        Long categoryId = taskSearchValues.getCategoryId();
+        Date dateFrom = taskSearchValues.getDateFrom();
+        Date dateTo = taskSearchValues.getDateTo();
+        Short completed = taskSearchValues.getCompleted();
+        String sortDirection = taskSearchValues.getSortDirection();
+        String sortColumn = taskSearchValues.getSortColumn();
+        Integer pageSize = taskSearchValues.getPageSize();
+        Integer pageNumber = taskSearchValues.getPageNumber();
+
+        Sort.Direction direction = sortDirection == null || sortDirection.trim().length() == 0 || sortDirection.equals("asc")
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        //id - второй столбец для сортировки, если будет 2 задачи например с одинаковым приоритетом(и мы сортируем по приоритету)
+        //Полей для сортировки мб сколько угодно
+        Sort sort = Sort.by(direction, sortColumn, "id");
+
+        //Объект "постраничности"
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+
+        //Результат запроса с постраничным выводом
+        Page<Task> result = taskService.find(title, completed, priorityId, categoryId, dateFrom, dateTo, email, pageRequest);
+
+        return ResponseEntity.ok(result);
     }
 }
