@@ -2,13 +2,16 @@ package com.tasklist.auth.controller;
 
 import com.tasklist.auth.entity.User;
 import com.tasklist.auth.exception.UserExistException;
+import com.tasklist.auth.object.JsonObject;
 import com.tasklist.auth.service.UserService;
 import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.AuthenticationException;
 import javax.validation.Valid;
 
 @RestController
@@ -31,5 +34,15 @@ public class AuthController {
     public ResponseEntity add(@Valid @RequestBody User user) throws UserExistException {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok().build(); //http OK - 200, регистрация прошла успешно
+    }
+
+    //Передача ошибки клиенту в формате Json
+    //AuthenticationException.class - обработка только ошибок, связанных с аутентификацией
+    @ExceptionHandler(AuthenticationException.class) //@ExceptionHandler позволяет перехватывать ошибки
+    public ResponseEntity<JsonObject> handleException(AuthenticationException ex) {
+        //Передача типа ошибки
+        return new ResponseEntity(new JsonObject(ex.getClass().getSimpleName(), //Передача типа ошибки
+                "User exist"),
+                HttpStatus.BAD_REQUEST);
     }
 }
