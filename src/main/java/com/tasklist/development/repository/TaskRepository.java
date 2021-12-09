@@ -24,11 +24,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "(:priorityId is null or t.priority.id=:priorityId) and " +
             "(:categoryId is null or t.category.id=:categoryId) and " +
             "(cast(:dateFrom as timestamp) is null or cast(:dateTo as timestamp) is null or " +
-            "t.taskDate between :dateFrom and :dateTo) and " +
+            "t.taskDate between to_date(:dateFrom,'YYYY-MM-DD') and to_date(:dateTo,'YYYY-MM-DD')) and " +
             "(t.user.email=:email)")
-    /*SELECT id, title, completed, task_date, priority_id, category_id, user_id
-	FROM tasklist.task
-	where task_date between to_date('2021-11-08','YYYY-MM-DD') and to_date('2021-11-13','YYYY-MM-DD');*/
     Page<Task> find (@Param("title") String title,
                      @Param("completed") Short completed,
                      @Param("priorityId") Long priorityId,

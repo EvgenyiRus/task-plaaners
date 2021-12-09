@@ -2,9 +2,11 @@ package com.tasklist.development.service;
 
 import com.tasklist.development.entity.Task;
 import com.tasklist.development.repository.TaskRepository;
+import com.tasklist.development.search.TaskSearchValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -40,8 +42,30 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public Page<Task> find (String title, Short completed, Long priorityId,
-                            Long categoryId, Date dateFrom, Date dateTo, String email, PageRequest request) {
-        return taskRepository.find(title, completed, priorityId, categoryId, dateFrom, dateTo, email, request);
+    public Page<Task> find (TaskSearchValues taskSearchValues) {
+
+        String title = taskSearchValues.getTitle();
+        String email = taskSearchValues.getEmail();
+        Long priorityId = taskSearchValues.getPriorityId();
+        Long categoryId = taskSearchValues.getCategoryId();
+        Date dateFrom = taskSearchValues.getDateFrom();
+        Date dateTo = taskSearchValues.getDateTo();
+        Short completed = taskSearchValues.getCompleted();
+        String sortDirection = taskSearchValues.getSortDirection();
+        String sortColumn = taskSearchValues.getSortColumn();
+        Integer pageSize = taskSearchValues.getPageSize();
+        Integer pageNumber = taskSearchValues.getPageNumber();
+
+        Sort.Direction direction = sortDirection == null || sortDirection.trim().length() == 0 || sortDirection.equals("asc")
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        //id - второй столбец для сортировки, если будет 2 задачи например с одинаковым приоритетом(и мы сортируем по приоритету)
+        //Полей для сортировки мб сколько угодно
+        Sort sort = Sort.by(direction, sortColumn, "id");
+
+        //Объект "постраничности"
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+
+        return taskRepository.find(title, completed, priorityId, categoryId, dateFrom, dateTo, email, pageRequest);
     }
 }
