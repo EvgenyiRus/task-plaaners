@@ -28,10 +28,10 @@ public class UserService {
 
     public void saveOrUpdate(User user) throws UserExistException {
         //проверка на существование пользователя с необходимым логином или email
-        if(isExistByUserEmail(user.getEmail())) {
+        if(isUserExistByUserEmail(user.getEmail())) {
             throw new UserExistException(String.format("User with email - %s already exist", user.getEmail()));
         }
-        else if (isExistByUsername(user.getUsername())) {
+        else if (isUserExistByUsername(user.getUsername())) {
             throw new UserExistException(String.format("User with login - %s already exist", user.getUsername()));
         }
         // шифрование пароля. запись хеша пароля c помощью алгоритма BCrypt
@@ -39,12 +39,12 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public boolean isExistByUsername(String username) {
+    public boolean isUserExistByUsername(String username) {
         return userRepository.getCountByUsername(username) > 0;
     }
 
     // -//- email
-    public boolean isExistByUserEmail(String email) {
+    public boolean isUserExistByUserEmail(String email) {
         return userRepository.getCountByUserEmail(email) > 0;
     }
 }
