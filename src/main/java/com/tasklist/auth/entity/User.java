@@ -2,7 +2,6 @@ package com.tasklist.auth.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -21,7 +20,6 @@ public class User {
 
     @Email
     @Column
-    @UniqueElements
     private String email;
 
     @Column
@@ -51,4 +49,5 @@ public class User {
     public int hashCode() {
         return Objects.hash(email);
     }
+
 }
