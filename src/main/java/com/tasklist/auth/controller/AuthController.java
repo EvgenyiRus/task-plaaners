@@ -1,7 +1,6 @@
 package com.tasklist.auth.controller;
 
 import com.tasklist.auth.entity.User;
-import com.tasklist.auth.exception.UserExistException;
 import com.tasklist.auth.object.JsonObject;
 import com.tasklist.auth.service.UserService;
 import javassist.NotFoundException;
@@ -31,7 +30,7 @@ public class AuthController {
     }
 
     @PutMapping("/register")
-    public ResponseEntity add(@Valid @RequestBody User user) throws UserExistException {
+    public ResponseEntity add(@Valid @RequestBody User user) throws AuthenticationException {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok().build(); //http OK - 200, регистрация прошла успешно
     }
@@ -40,7 +39,6 @@ public class AuthController {
     //AuthenticationException.class - обработка только ошибок, связанных с аутентификацией
     @ExceptionHandler(AuthenticationException.class) //@ExceptionHandler позволяет перехватывать ошибки
     public ResponseEntity<JsonObject> handleException(AuthenticationException ex) {
-        //Передача типа ошибки
         return new ResponseEntity(new JsonObject(ex.getClass().getSimpleName(), //Передача типа ошибки
                 "User exist"),
                 HttpStatus.BAD_REQUEST);
