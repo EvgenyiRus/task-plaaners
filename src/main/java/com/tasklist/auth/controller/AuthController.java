@@ -26,12 +26,12 @@ public class AuthController {
 
     @PostMapping("/test")
     public ResponseEntity<User> getUser (@RequestBody Long id) throws NotFoundException {
-        return ResponseEntity.ok(userService.getUser(id));
+        return ResponseEntity.ok(userService.findById(id));
     }
 
     @PutMapping("/register")
     public ResponseEntity add(@Valid @RequestBody User user) throws AuthenticationException {
-        userService.saveOrUpdate(user);
+        userService.register(user);
         return ResponseEntity.ok().build(); //http OK - 200, регистрация прошла успешно
     }
 

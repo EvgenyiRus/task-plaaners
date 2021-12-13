@@ -21,11 +21,12 @@ public class Activity {
     private Long id;
 
     @Column
-    @Type(type = "org.hibernate.type.NumericBooleanType") //Для автоматической ковертации чисел в true/false
+    @Type(type = "org.hibernate.type.NumericBooleanType") //Для автоматической конвертации чисел в true/false
     private boolean activated;
 
     @NotBlank
-    @Column(updatable = false) //создается только 1 раз при добавлении
+    // создается только 1 раз при добавлении (для активации пользователя)
+    @Column(updatable = false)
     private String uuid;
 
     @JsonIgnore

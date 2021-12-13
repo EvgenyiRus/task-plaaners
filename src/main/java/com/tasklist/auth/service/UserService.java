@@ -1,9 +1,11 @@
 package com.tasklist.auth.service;
 
+import com.tasklist.auth.entity.Activity;
 import com.tasklist.auth.entity.Role;
 import com.tasklist.auth.entity.User;
 import com.tasklist.auth.exception.RoleExistException;
 import com.tasklist.auth.exception.UserExistException;
+import com.tasklist.auth.repository.ActivityRepository;
 import com.tasklist.auth.repository.RoleRepository;
 import com.tasklist.auth.repository.UserRepository;
 import javassist.NotFoundException;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -24,27 +27,30 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ActivityRepository activityRepository;
 
     @Autowired
-    public UserService(PasswordEncoder passwordEncoder, RoleRepository roleRepository, UserRepository userRepository) {
+    public UserService(PasswordEncoder passwordEncoder, ActivityRepository activityRepository,
+                       RoleRepository roleRepository, UserRepository userRepository) {
+        this.activityRepository = activityRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User getUser(Long id) throws NotFoundException {
+    public User findById(Long id) throws NotFoundException {
         return userRepository.findByIdOrderByUsername(id).orElseThrow(
                 () -> new NotFoundException(String.format("User not found with id = %s", id)));
     }
 
-    public void saveOrUpdate(User user) throws AuthenticationException {
-        //проверка на существование пользователя с необходимым логином или email
+    public void register(User user) throws AuthenticationException {
+        // проверка на существование пользователя с необходимым логином или email
         if (isUserExistByUserEmail(user.getEmail())) {
             throw new UserExistException(String.format("User with email - %s already exist", user.getEmail()));
         } else if (isUserExistByUsername(user.getUsername())) {
             throw new UserExistException(String.format("User with login - %s already exist", user.getUsername()));
         }
-        // получение роли по умолчанию
+        // добавление роли
         Role role = findByName(DEFAULT_USER).orElseThrow(
                 () -> new RoleExistException("Not found default role for user"));
         // роль пользователя автоматически сохранится в user_role
@@ -52,19 +58,30 @@ public class UserService {
         // шифрование пароля. запись хеша пароля c помощью алгоритма BCrypt
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+        // активация пользователя
+        Activity activity = getActivity(user);
+        activityRepository.save(activity);
+    }
+
+    private Activity getActivity(User user) {
+        Activity activity = new Activity();
+        activity.setUser(user);
+        // получение уникольного UUID для активации пользователя
+        activity.setUuid(UUID.randomUUID().toString());
+        return activity;
     }
 
     //Проверка на существующего пользователя по Login
-    public boolean isUserExistByUsername(String username) {
+    private boolean isUserExistByUsername(String username) {
         return userRepository.getCountByUsername(username) > 0;
     }
 
     //... по email
-    public boolean isUserExistByUserEmail(String email) {
+    private boolean isUserExistByUserEmail(String email) {
         return userRepository.getCountByUserEmail(email) > 0;
     }
 
-    public Optional<Role> findByName(String role) {
+    private Optional<Role> findByName(String role) {
         return roleRepository.findByName(role);
     }
 }
