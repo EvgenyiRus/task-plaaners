@@ -11,7 +11,11 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByIdOrderByUsername(Long id);
+    Optional<User> findById(Long id);
+
+    Optional<User> findByUsername(String username);
+
+    Optional<User> findByEmail(String email);
 
     @Query("SELECT COUNT(u.username) FROM User u WHERE lower(u.username)=lower(:username)")
     int getCountByUsername(@Param("username") String username);

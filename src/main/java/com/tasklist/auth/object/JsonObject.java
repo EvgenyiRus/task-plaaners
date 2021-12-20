@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JsonObject {
 
-    String exception; //Тип ошибки
-    String message; //Текст ошибки
+    String exception; // Тип ошибки
+    String message; // Текст ошибки
 }
