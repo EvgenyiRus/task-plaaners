@@ -54,13 +54,13 @@ public class UserDetailsImpl implements UserDetails {
     // заблокированный
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     // с действующим паролем
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     /* Метод isEnabled вызывается автоматически Spring контейнером, где это нужно ему по логике работы =>
@@ -77,6 +77,6 @@ public class UserDetailsImpl implements UserDetails {
     */
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

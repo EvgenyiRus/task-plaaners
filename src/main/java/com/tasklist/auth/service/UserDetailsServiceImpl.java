@@ -5,17 +5,19 @@ import com.tasklist.auth.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-/* Сервис, который используется для проверки пользователя в БД при аутентификации/авторизации (логин-пароль)
-Метод loadUserByUsername автоматически вызывается Spring контейнером (когда пытаемся залогинить пользователя методом authenticate), чтобы найти пользователя в БД.
-Затем Spring сравнивает хэши паролей (введенного и фактического) и выдает результат (все ок или выбрасывает исключение, которое можно оправить клиенту)
-Также, метод loadUserByUsername можно вызывать самим, вручную, когда необходимо проверить наличие пользователя в БД (по username или email).
-Чтобы этот класс был задействован в аутентификации - его нужно указать в Spring настройках в методе configure(AuthenticationManagerBuilder authenticationManagerBuilder)
-Класс обязательно должен реализовать интерфейс UserDetailsService, чтобы Spring "принимал" этот класс.
+/* сервис, который используется для проверки пользователя в БД при аутентификации/авторизации (логин-пароль)
+    метод loadUserByUsername автоматически вызывается Spring контейнером (когда пытаемся залогинить пользователя методом authenticate), чтобы найти пользователя в БД.
+    затем Spring сравнивает хэши паролей (введенного и фактического) и выдает результат (все ок или выбрасывает исключение, которое можно оправить клиенту)
+    также, метод loadUserByUsername можно вызывать самим, вручную, когда необходимо проверить наличие пользователя в БД (по username или email).
+    чтобы этот класс был задействован в аутентификации - его нужно указать в Spring настройках в методе configure(AuthenticationManagerBuilder authenticationManagerBuilder)
+    класс обязательно должен реализовать интерфейс UserDetailsService, чтобы Spring "принимал" этот класс.
  */
+@Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
@@ -26,13 +28,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     // поиск пользователя при аутентификации по username или email
-    public UserDetails loadUserByUsername(String value) throws UsernameNotFoundException {
-        Optional<User> authUser = userRepository.findByUsername(value); // поиск по username
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> authUser = userRepository.findByUsername(username); // поиск по username
         if (authUser.isEmpty()) {
-            authUser = userRepository.findByEmail(value); // поиск по email
+            authUser = userRepository.findByEmail(username); // поиск по email
         }
         if (authUser.isEmpty()) {
-            throw new UsernameNotFoundException(String.format("User %s not found", value));
+            throw new UsernameNotFoundException(String.format("User %s not found", username));
         }
         return new UserDetailsImpl(authUser.get());
     }

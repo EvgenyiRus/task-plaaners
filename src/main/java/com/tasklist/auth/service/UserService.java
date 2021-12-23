@@ -10,7 +10,12 @@ import com.tasklist.auth.repository.ActivityRepository;
 import com.tasklist.auth.repository.RoleRepository;
 import com.tasklist.auth.repository.UserRepository;
 import javassist.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,7 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@Slf4j
 public class UserService {
 
     public static final String DEFAULT_USER = "USER";
@@ -30,19 +36,38 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ActivityRepository activityRepository;
+    /* объект, позволяющий провести Аутентификацию
+     делегирует вызов Authenticate () правильному AuthenticationProvider */
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
     public UserService(PasswordEncoder passwordEncoder, ActivityRepository activityRepository,
-                       RoleRepository roleRepository, UserRepository userRepository) {
+                       RoleRepository roleRepository, UserRepository userRepository,
+                       AuthenticationManager authenticationManager) {
         this.activityRepository = activityRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     public User findById(Long id) throws NotFoundException {
         return userRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(String.format("User not found with id = %s", id)));
+    }
+
+    // авторизация
+    public UserDetailsImpl login(User user) {
+        // подготовка данных пользователя для аутентификации
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+        // Authentication - объект, хранящий подробную информацию о пользователе (с точки зрения Spring Security)
+        // после успешной аутентификации
+        Authentication authentication = authenticationManager.authenticate(token); // аутентификация пользователя, проверка логин - пароль с данными из БД
+
+        // сохранение ифнормации в Spring контейнере об авторизации пользователя (для использования ролей и др.)
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return (UserDetailsImpl) authentication.getPrincipal();
     }
 
     // регистрация
@@ -78,7 +103,7 @@ public class UserService {
         return activityRepository.setActivity(activate, uuid);
     }
 
-    public Optional<Activity> findActivityByUuid (String uuid) {
+    public Optional<Activity> findActivityByUuid(String uuid) {
         return activityRepository.findByUuid(uuid);
     }
 
