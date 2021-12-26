@@ -65,7 +65,7 @@ public class UserService {
         // после успешной аутентификации
         Authentication authentication = authenticationManager.authenticate(token); // аутентификация пользователя, проверка логин - пароль с данными из БД
 
-        // сохранение ифнормации в Spring контейнере об авторизации пользователя (для использования ролей и др.)
+        // сохранение информации в Spring контейнере об авторизации пользователя (для использования ролей и др.)
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return (UserDetailsImpl) authentication.getPrincipal();
     }
