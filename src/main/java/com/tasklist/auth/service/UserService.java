@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.AuthenticationException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,7 +70,7 @@ public class UserService {
     }
 
     // регистрация
-    public void register(User user) throws AuthenticationException {
+    public void register(User user) throws UserExistException, RoleExistException {
         // проверка на существование пользователя с необходимым логином или email
         if (isUserExistByUserEmail(user.getEmail())) {
             throw new UserExistException(String.format("User with email - %s already exist", user.getEmail()));

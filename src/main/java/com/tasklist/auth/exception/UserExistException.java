@@ -1,8 +1,6 @@
 package com.tasklist.auth.exception;
 
-import javax.naming.AuthenticationException;
-
-public class UserExistException extends AuthenticationException {
+public class UserExistException extends Exception {
 
     public UserExistException(String message) {
         super(message);

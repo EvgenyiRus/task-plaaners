@@ -59,11 +59,11 @@ public class TaskService {
         Sort.Direction direction = sortDirection == null || sortDirection.trim().length() == 0 || sortDirection.equals("asc")
                 ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-        //id - второй столбец для сортировки, если будет 2 задачи например с одинаковым приоритетом(и мы сортируем по приоритету)
-        //Полей для сортировки мб сколько угодно
+        // id - второй столбец для сортировки, если будет 2 задачи например с одинаковым приоритетом(и мы сортируем по приоритету)
+        // Полей для сортировки мб сколько угодно
         Sort sort = Sort.by(direction, sortColumn, "id");
 
-        //Объект "постраничности"
+        // Объект "постраничности"
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
 
         return taskRepository.find(title, completed, priorityId, categoryId, dateFrom, dateTo, email, pageRequest);

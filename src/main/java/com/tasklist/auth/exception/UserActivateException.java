@@ -1,8 +1,6 @@
 package com.tasklist.auth.exception;
 
-import javax.naming.AuthenticationException;
-
-public class UserActivateException extends AuthenticationException {
+public class UserActivateException extends Exception {
 
     public UserActivateException(String explanation) {
         super(explanation);

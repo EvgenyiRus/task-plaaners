@@ -1,7 +1,9 @@
 package com.tasklist.auth.controller;
 
 import com.tasklist.auth.entity.User;
+import com.tasklist.auth.exception.RoleExistException;
 import com.tasklist.auth.exception.UserActivateException;
+import com.tasklist.auth.exception.UserExistException;
 import com.tasklist.auth.object.JsonObject;
 import com.tasklist.auth.service.UserDetailsImpl;
 import com.tasklist.auth.service.UserService;
@@ -13,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.AuthenticationException;
 import javax.validation.Valid;
 
 @RestController
@@ -51,7 +52,7 @@ public class AuthController {
 
     // регистрация
     @PutMapping("/register")
-    public ResponseEntity register(@Valid @RequestBody User user) throws AuthenticationException {
+    public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserExistException, RoleExistException {
         userService.register(user);
         return ResponseEntity.ok().build(); //http OK - 200, регистрация прошла успешно
     }
@@ -86,7 +87,7 @@ public class AuthController {
         Эти типы ошибок можно будет считывать на клиенте и обрабатывать как нужно (например, показать текст ошибки)
         */
 
-        return new ResponseEntity(new JsonObject(ex.getClass().getSimpleName(), // передача типа ошибки
+        return new ResponseEntity<>(new JsonObject(ex.getClass().getSimpleName(), // передача типа ошибки
                 ex.getMessage()),
                  // передача текста ошибки
                 HttpStatus.BAD_REQUEST);

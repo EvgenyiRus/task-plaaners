@@ -42,8 +42,8 @@ public class CategoryController {
     public ResponseEntity<Category> add(@RequestBody Category category) {
         log.info("Call CategoryController: add new category ===============================");
         //Проверка на новый объект
-        //406 Not Acceptable означает, что сервер не может вернуть ответ, соответствующий списку допустимых значений
         if (category.getId() != null && category.getId() != 0) {
+            //406 Not Acceptable означает, что сервер не может вернуть ответ, соответствующий списку допустимых значений
             return new ResponseEntity("Id must be null", HttpStatus.NOT_ACCEPTABLE);
         }
         if (category.getTitle() == null || category.getTitle().isBlank()) {

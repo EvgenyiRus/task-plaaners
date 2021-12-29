@@ -1,8 +1,6 @@
 package com.tasklist.auth.exception;
 
-import javax.naming.AuthenticationException;
-
-public class RoleExistException extends AuthenticationException {
+public class RoleExistException extends Exception {
 
     public RoleExistException(String message) {
         super(message);
