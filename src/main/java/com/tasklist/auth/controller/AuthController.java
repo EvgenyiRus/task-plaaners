@@ -7,6 +7,7 @@ import com.tasklist.auth.exception.UserExistException;
 import com.tasklist.auth.object.JsonObject;
 import com.tasklist.auth.service.UserDetailsImpl;
 import com.tasklist.auth.service.UserService;
+import com.tasklist.auth.utils.JwtUtils;
 import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ import javax.validation.Valid;
 @Slf4j
 public class AuthController {
     private final UserService userService;
+    private final JwtUtils jwtUtils;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JwtUtils jwtUtils) {
         this.userService = userService;
+        this.jwtUtils = jwtUtils;
     }
 
     @GetMapping("/test")
@@ -57,7 +60,7 @@ public class AuthController {
         return ResponseEntity.ok().build(); //http OK - 200, регистрация прошла успешно
     }
 
-    // авторизация
+    // авторизация (метод доступен для всех пользователей)
     // https://medium.com/geekculture/spring-security-authentication-process-authentication-flow-behind-the-scenes-d56da63f04fa
     @PostMapping("/login")
     public ResponseEntity<User> login(@Valid @RequestBody User user) {
@@ -67,6 +70,10 @@ public class AuthController {
         if(!userDetails.getUser().getActivity().isActivated()) {
             throw new DisabledException("User not activate");
         }
+        /* после каждого успешного входа генерируется новый jwt,
+         чтобы следующие запросы на backend авторизовывать автоматически
+        */
+        String jwt = jwtUtils.createJwtToken(userDetails.getUser());
         return ResponseEntity.ok().body(userDetails.getUser());
     }
 

@@ -60,12 +60,11 @@ public class UserService {
         // подготовка данных пользователя для аутентификации
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-        // Authentication - объект, хранящий подробную информацию о пользователе (с точки зрения Spring Security)
-        // после успешной аутентификации
+        // Authentication - объект, хранящий подробную информацию о пользователе после успешной аутентификации
         Authentication authentication = authenticationManager.authenticate(token); // аутентификация пользователя, проверка логин - пароль с данными из БД
-
         // сохранение информации в Spring контейнере об авторизации пользователя (для использования ролей и др.)
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        // UserDetailsImpl - спец. объект, который хранится в Spring контейнере и содержит данные пользователя
         return (UserDetailsImpl) authentication.getPrincipal();
     }
 
