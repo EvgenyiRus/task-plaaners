@@ -82,7 +82,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
            if_required(по умолчанию) - JSESSIONID создастся только после авторизации
            never - сессия создается, если есть JSESSIONID
            statеless - сессия никода не сохраняется на сервере(куки не будет) */
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER);
+        /*
+            Отключение хранение сессии на сервере, в этом нет необходимости.
+            Клиент вызывает RESTful API сервера и передает токен с информацией о пользователе.
+         */
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         /* отключаем на время разработки(для методов post put и др.
            которые изменяют данные, будут без ошибок) */

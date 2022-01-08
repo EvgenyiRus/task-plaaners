@@ -35,8 +35,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ActivityRepository activityRepository;
-    /* объект, позволяющий провести Аутентификацию
-     делегирует вызов Authenticate () правильному AuthenticationProvider */
+
+    /*
+      объект, позволяющий провести Аутентификацию
+      делегирует вызов Authenticate () правильному AuthenticationProvider
+     */
     private final AuthenticationManager authenticationManager;
 
     @Autowired
@@ -57,43 +60,55 @@ public class UserService {
 
     // авторизация
     public UserDetailsImpl login(User user) {
+
         // подготовка данных пользователя для аутентификации
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+
         // Authentication - объект, хранящий подробную информацию о пользователе после успешной аутентификации
         Authentication authentication = authenticationManager.authenticate(token); // аутентификация пользователя, проверка логин - пароль с данными из БД
+
         // сохранение информации в Spring контейнере об авторизации пользователя (для использования ролей и др.)
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         // UserDetailsImpl - спец. объект, который хранится в Spring контейнере и содержит данные пользователя
         return (UserDetailsImpl) authentication.getPrincipal();
     }
 
     // регистрация
     public void register(User user) throws UserExistException, RoleExistException {
+
         // проверка на существование пользователя с необходимым логином или email
         if (isUserExistByUserEmail(user.getEmail())) {
             throw new UserExistException(String.format("User with email - %s already exist", user.getEmail()));
         } else if (isUserExistByUsername(user.getUsername())) {
             throw new UserExistException(String.format("User with login - %s already exist", user.getUsername()));
         }
+
         // добавление роли
         Role role = findByName(DEFAULT_USER).orElseThrow(
                 () -> new RoleExistException("Not found default role for user"));
+
         // роль пользователя автоматически сохранится в user_role
         user.getRoles().add(role);
+
         // шифрование пароля. запись хеша пароля c помощью алгоритма BCrypt
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+
         // активация пользователя
         Activity activity = getActivity(user);
         activityRepository.save(activity);
     }
 
-    // активация
-    // true конвертируется в 1 (см. Аctivity - @Type(type = "org.hibernate.type.NumericBooleanType")), false - 0
+    /*
+    активация
+    true конвертируется в 1 (см. Аctivity - @Type(type = "org.hibernate.type.NumericBooleanType")), false - 0
+     */
     public int activate(boolean activate, String uuid) throws UserActivateException {
         Activity activity = activityRepository.findByUuid(uuid)
                 .orElseThrow(() -> new UsernameNotFoundException("Activity not found with uuid:" + uuid));
+
         // проверка на активацию пользователя
         if (activity.isActivated() && activate) {
             throw new UserActivateException("User already activated");
@@ -108,6 +123,7 @@ public class UserService {
     private Activity getActivity(User user) {
         Activity activity = new Activity();
         activity.setUser(user);
+
         // получение уникольного UUID для активации пользователя
         activity.setUuid(UUID.randomUUID().toString());
         return activity;

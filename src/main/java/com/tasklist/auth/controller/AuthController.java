@@ -7,10 +7,12 @@ import com.tasklist.auth.exception.UserExistException;
 import com.tasklist.auth.object.JsonObject;
 import com.tasklist.auth.service.UserDetailsImpl;
 import com.tasklist.auth.service.UserService;
+import com.tasklist.auth.utils.CookieUtils;
 import com.tasklist.auth.utils.JwtUtils;
 import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.DisabledException;
@@ -24,11 +26,12 @@ import javax.validation.Valid;
 public class AuthController {
     private final UserService userService;
     private final JwtUtils jwtUtils;
+    private final CookieUtils cookieUtils;
 
-    @Autowired
-    public AuthController(UserService userService, JwtUtils jwtUtils) {
+    public AuthController(UserService userService, JwtUtils jwtUtils, CookieUtils cookieUtils) {
         this.userService = userService;
         this.jwtUtils = jwtUtils;
+        this.cookieUtils = cookieUtils;
     }
 
     @GetMapping("/test")
@@ -64,22 +67,40 @@ public class AuthController {
     // https://medium.com/geekculture/spring-security-authentication-process-authentication-flow-behind-the-scenes-d56da63f04fa
     @PostMapping("/login")
     public ResponseEntity<User> login(@Valid @RequestBody User user) {
+
         // получение данных пользователя после успешной аутентификации
         UserDetailsImpl userDetails = userService.login(user);
+
         // проверка на активацию пользователя
-        if(!userDetails.getUser().getActivity().isActivated()) {
+        if (!userDetails.getUser().getActivity().isActivated()) {
             throw new DisabledException("User not activate");
         }
-        /* после каждого успешного входа генерируется новый jwt,
+
+        /*
+         после каждого успешного входа генерируется новый jwt,
          чтобы следующие запросы на backend авторизовывать автоматически
         */
         String jwt = jwtUtils.createJwtToken(userDetails.getUser());
-        return ResponseEntity.ok().body(userDetails.getUser());
+
+        /*
+         создание кука cо значением JWT для аутентификации на сервере
+         (клиент будет отправлять его автоматически на backend при каждом запросе)
+         */
+        HttpCookie httpCookie = cookieUtils.createJwtCookie(jwt);
+
+        // добавление кука в заголовок ответа
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.SET_COOKIE, httpCookie.toString());
+
+        // отправление клиенту данных пользователя + jwt-кук в заголовке Set-Cookie
+        return ResponseEntity.ok().headers(responseHeaders).body(userDetails.getUser());
     }
 
-    // передача ошибки клиенту в формате Json
-    // AuthenticationException.class - обработка только ошибок, связанных с аутентификацией
-    // Exception - всех ошибок
+    /*
+     Передача ошибки клиенту в формате Json
+     AuthenticationException.class - обработка только ошибок, связанных с аутентификацией
+     Exception - всех ошибок
+     */
     @ExceptionHandler(Exception.class) //@ExceptionHandler позволяет перехватывать ошибки
     public ResponseEntity<JsonObject> handleException(Exception ex) {
         /*
@@ -93,10 +114,9 @@ public class AuthController {
 
         Эти типы ошибок можно будет считывать на клиенте и обрабатывать как нужно (например, показать текст ошибки)
         */
-
         return new ResponseEntity<>(new JsonObject(ex.getClass().getSimpleName(), // передача типа ошибки
                 ex.getMessage()),
-                 // передача текста ошибки
+                // передача текста ошибки
                 HttpStatus.BAD_REQUEST);
     }
 }
