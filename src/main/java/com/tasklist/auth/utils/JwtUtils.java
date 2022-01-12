@@ -74,7 +74,7 @@ public class JwtUtils {
 
     // получение полей из JWT (данных пользователя)
     public User getClaims(String jwt) {
-        Map map = (Map) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJwt(jwt).getBody().get(CLAIM_USER_KEY);
+        Map map = (Map) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt).getBody().get(CLAIM_USER_KEY);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.convertValue(map, User.class);
     }
