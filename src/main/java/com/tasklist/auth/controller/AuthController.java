@@ -4,7 +4,7 @@ import com.tasklist.auth.entity.User;
 import com.tasklist.auth.exception.RoleExistException;
 import com.tasklist.auth.exception.UserActivateException;
 import com.tasklist.auth.exception.UserExistException;
-import com.tasklist.auth.object.JsonObject;
+import com.tasklist.auth.object.JsonException;
 import com.tasklist.auth.service.UserDetailsImpl;
 import com.tasklist.auth.service.UserService;
 import com.tasklist.auth.utils.CookieUtils;
@@ -15,6 +15,7 @@ import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,17 @@ public class AuthController {
     @PostMapping("/test")
     public ResponseEntity<User> getUser(@RequestBody Long id) throws NotFoundException {
         return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @PostMapping("/test-no-auth")
+    public String testNoAuth() {
+        return "OK-no-auth";
+    }
+
+    @PreAuthorize("USER") // метод сможет вызвать только пользователь с правами USER
+    @PostMapping("/test-with-auth")
+    public String testWithAuth() {
+        return "OK-with-auth";
     }
 
     // активация
@@ -102,7 +114,8 @@ public class AuthController {
      Exception - всех ошибок
      */
     @ExceptionHandler(Exception.class) //@ExceptionHandler позволяет перехватывать ошибки
-    public ResponseEntity<JsonObject> handleException(Exception ex) {
+    public ResponseEntity<JsonException> handleException(Exception ex) {
+
         /*
         DisabledException - не активирован
         UserAlreadyActivatedException - пользователь уже активирован (пытается неск. раз активировать)
@@ -114,9 +127,9 @@ public class AuthController {
 
         Эти типы ошибок можно будет считывать на клиенте и обрабатывать как нужно (например, показать текст ошибки)
         */
-        return new ResponseEntity<>(new JsonObject(ex.getClass().getSimpleName(), // передача типа ошибки
-                ex.getMessage()),
-                // передача текста ошибки
+        return new ResponseEntity<>(new JsonException(
+                ex.getClass().getSimpleName(), // передача типа ошибки
+                ex.getMessage()), // передача текста ошибки
                 HttpStatus.BAD_REQUEST);
     }
 }

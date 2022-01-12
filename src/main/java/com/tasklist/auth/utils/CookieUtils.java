@@ -6,6 +6,9 @@ import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Утилита для работы с куками
  * кук jwt создается на сервере и управляется только сервером (создается, удаляется) - "server-side cookie"
@@ -50,5 +53,20 @@ public class CookieUtils {
                 .domain(cookieAccessTokenDomain)
                 .path("/") // кук будет доступен для всех URL сервера
                 .build();
+    }
+
+    // получение значения куки access_token (JWT) из запроса
+    public String getCookieAccessToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        String cook = null;
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (ACCESS_TOKEN.equals(cookie.getName())) { // поиск необходимого куки по названию
+                cook = cookie.getValue(); // получить значение JWT
+            }
+        }
+        return cook;
     }
 }

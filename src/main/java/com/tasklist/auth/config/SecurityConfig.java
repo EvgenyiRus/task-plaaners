@@ -1,5 +1,6 @@
 package com.tasklist.auth.config;
 
+import com.tasklist.auth.filter.ExceptionHandlerFilter;
 import com.tasklist.auth.service.UserDetailsServiceImpl;
 import com.tasklist.auth.filter.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsServiceImpl userDetailsService;
     // перехватывает все входящие запросы (jwt если необходимо)
     private AuthTokenFilter authTokenFilter;
+    private ExceptionHandlerFilter exceptionHandlerFilter;
 
     @Autowired
     public void setUserDetailsService(UserDetailsServiceImpl userDetailsService) {
@@ -33,6 +35,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void setAuthTokenFilter(AuthTokenFilter authTokenFilter) {
         this.authTokenFilter = authTokenFilter;
+    }
+
+    @Autowired
+    public void setExceptionHandlerFilter(ExceptionHandlerFilter exceptionHandlerFilter) {
+        this.exceptionHandlerFilter = exceptionHandlerFilter;
     }
 
     // для хеширования паролей используется алгоритм Bcrypt
@@ -81,7 +88,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
            always - сохраняется JSESSIONID в куки браузера
            if_required(по умолчанию) - JSESSIONID создастся только после авторизации
            never - сессия создается, если есть JSESSIONID
-           statеless - сессия никода не сохраняется на сервере(куки не будет) */
+           statеless - сессия никода не сохраняется на сервере(куки не будет)
+         */
         /*
             Отключение хранение сессии на сервере, в этом нет необходимости.
             Клиент вызывает RESTful API сервера и передает токен с информацией о пользователе.
@@ -89,13 +97,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         /* отключаем на время разработки(для методов post put и др.
-           которые изменяют данные, будут без ошибок) */
+           которые изменяют данные, будут без ошибок)
+         */
         http.csrf().disable();
         http.httpBasic().disable(); //отключаем стандартную авторизацию Spring
         http.formLogin().disable(); //отключаем стандартную форму логирования
         http.requiresChannel().anyRequest().requiresSecure(); //Обязательное исп. HTTPS
-        // внедрение фильтра в securityFilterChain
-        // ... Before - валидация JWT попадет до того как запрос попадет в контроллер
+
+        /*
+         внедрение фильтров в securityFilterChain
+         1. exceptionHandlerFilter
+         2. authTokenFilter
+            ...
+         */
+
+        // перехват ошибок авторизации до вызова оснонвых фильтров в SessionManagementFilter
         http.addFilterBefore(authTokenFilter, SessionManagementFilter.class);
+
+        // перехват ошибок на уровне фильтров.Всех последующих фильтров и отправляет их клиенту в формате JSON
+        // этот фильтр должен обязательно находиться перед всеми остальными фильтрами
+        http.addFilterBefore(exceptionHandlerFilter, AuthTokenFilter.class);
     }
 }

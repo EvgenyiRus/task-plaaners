@@ -11,9 +11,10 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-// объект для хранения данных пользователя
-// используется при аутентификации пользователя в Spring контейнере
-// User implements UserDetails не рекомендуется
+/** объект для хранения данных пользователя
+ используется при аутентификации пользователя в Spring контейнере
+ User implements UserDetails не рекомендуется
+ */
 @Getter
 @Setter
 public class UserDetailsImpl implements UserDetails {

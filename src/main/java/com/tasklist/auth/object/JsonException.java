@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class JsonObject {
+public class JsonException {
 
     String exception; // Тип ошибки
     String message; // Текст ошибки
