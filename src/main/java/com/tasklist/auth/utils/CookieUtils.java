@@ -18,7 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 
 @Component
 public class CookieUtils {
-    private static final String ACCESS_TOKEN = "access_token"; // имя кука для хранения JWT
+    @Value("${jwt.cookie.jwt.name}")
+    private String cookieJwtName;
 
     @Value("${jwt.cookie-max-age}")
     private int cookieAccessTokenDuration;
@@ -29,7 +30,7 @@ public class CookieUtils {
     // создание кука на сервере для аутентификации клиента
     public HttpCookie createJwtCookie(String jwt) {
         return ResponseCookie
-                .from(ACCESS_TOKEN, jwt) // имя и значение для кука
+                .from(cookieJwtName, jwt) // имя и значение для кука
                 .maxAge(cookieAccessTokenDuration) // время действия
 
                 /*
@@ -63,10 +64,22 @@ public class CookieUtils {
             return null;
         }
         for (Cookie cookie : cookies) {
-            if (ACCESS_TOKEN.equals(cookie.getName())) { // поиск необходимого куки по названию
+            if (cookieJwtName.equals(cookie.getName())) { // поиск необходимого куки по названию
                 cook = cookie.getValue(); // получить значение JWT
             }
         }
         return cook;
+    }
+
+    public HttpCookie deleteCookie () {
+        return ResponseCookie
+                .from(cookieJwtName, null)
+                .maxAge(0) // время действия. Браузер удалит кук с 0 временем
+                .sameSite(SameSiteCookies.STRICT.getValue())
+                .httpOnly(true)
+                .secure(true)
+                .domain(cookieAccessTokenDomain)
+                .path("/")
+                .build();
     }
 }

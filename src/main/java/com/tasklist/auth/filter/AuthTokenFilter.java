@@ -79,8 +79,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             }
 
             // Аутентификация пользователя БЕЗ пароля (пароль используется для login)
-
-            User user = jwtUtils.getClaims(jwt); // получение данных пользователя из JWT
+            User user = jwtUtils.getClaims(jwt); // получение данных пользователя из JWT(не делая запрос в БД)
             UserDetailsImpl userDetails = new UserDetailsImpl(user);
 
             /*

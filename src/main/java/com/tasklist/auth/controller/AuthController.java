@@ -108,6 +108,21 @@ public class AuthController {
         return ResponseEntity.ok().headers(responseHeaders).body(userDetails.getUser());
     }
 
+    @PostMapping("/logout")
+    @PreAuthorize("USER") // метод сможет вызвать только пользователь с правами USER
+    public ResponseEntity<User> logout () {
+
+        // создание кук с истекшим сроком действия. Автоматически удалится браузером т.к. срок действия = 0
+        HttpCookie cookie = cookieUtils.deleteCookie();
+
+        // добавление кука в заголовок ответа
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        // в ответе отправляем только кук, без тела запроса
+        return ResponseEntity.ok().headers(httpHeaders).build();
+    }
+
     /*
      Передача ошибки клиенту в формате Json
      AuthenticationException.class - обработка только ошибок, связанных с аутентификацией
