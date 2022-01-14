@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.apache.logging.log4j.util.Strings.isBlank;
+
 /* @RestController вместо обычного @Controller, чтобы все ответы сразу оборачивались в JSON,
 иначе пришлось бы добавлять лишние объекты в код, использовать @ResponseBody для ответа, указывать тип отправки JSON*/
 @RestController
@@ -46,7 +48,7 @@ public class CategoryController {
             //406 Not Acceptable означает, что сервер не может вернуть ответ, соответствующий списку допустимых значений
             return new ResponseEntity("Id must be null", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (category.getTitle() == null || category.getTitle().isBlank()) {
+        if (category.getTitle() == null || isBlank(category.getTitle())) {
             return new ResponseEntity("Title not must be null", HttpStatus.NOT_ACCEPTABLE);
         }
         //получаем созданный в БД объект с новым id и отдаем клиенту
@@ -59,7 +61,7 @@ public class CategoryController {
         if (category.getId() == null || category.getId() == 0) {
             return new ResponseEntity("Id not must be null", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (category.getTitle() == null || category.getTitle().isBlank()) {
+        if (category.getTitle() == null || isBlank(category.getTitle())) {
             return new ResponseEntity("Title not must be null", HttpStatus.NOT_ACCEPTABLE);
         }
         categoryService.addOrUpdate(category);

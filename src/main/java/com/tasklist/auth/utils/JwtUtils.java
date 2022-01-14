@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.apache.logging.log4j.util.Strings.isBlank;
+
 /**
  * Утилита для работы с токеном JWT (генерация, парсинг данных, валидация)
  * Сам jwt не шифруется т.к. он будет передаваться по HTTPS и автоматически будет шифроваться (нет смысла 2 раза шифровать)
@@ -52,7 +54,7 @@ public class JwtUtils {
         Сервер может доверять только тем данным, которые подписаны его secret ключом.
         Этот ключ хранится только на сервере, а значит никто кроме сервера не мог им воспользоваться и подписать данные.
         */
-        if (jwt == null || jwt.isBlank()) {
+        if (jwt == null || isBlank(jwt)) {
             return false;
         }
         try {

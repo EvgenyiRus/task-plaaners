@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.apache.logging.log4j.util.Strings.isBlank;
+
 @RestController
 @RequestMapping("/priority")
 @Slf4j
@@ -37,10 +39,10 @@ public class PriorityController {
         if (priority.getId() != null && priority.getId() != 0) {
             return new ResponseEntity("Id must be empty", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (priority.getColor() == null || priority.getColor().isBlank()) {
+        if (priority.getColor() == null || isBlank(priority.getColor())) {
             return new ResponseEntity("Color is empty or null", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (priority.getTitle() == null || priority.getTitle().isBlank()) {
+        if (priority.getTitle() == null || isBlank(priority.getTitle())) {
             return new ResponseEntity("Title is empty or null", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(priorityService.addOrUpdate(priority));
@@ -52,10 +54,10 @@ public class PriorityController {
         if (priority.getId() == null || priority.getId() == 0) {
             return new ResponseEntity("Id is empty", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (priority.getColor() == null || priority.getColor().isBlank()) {
+        if (priority.getColor() == null || isBlank(priority.getColor())) {
             return new ResponseEntity("Color is empty or null", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (priority.getTitle() == null || priority.getTitle().isBlank()) {
+        if (priority.getTitle() == null || isBlank(priority.getTitle())) {
             return new ResponseEntity("Title is empty or null", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(priorityService.addOrUpdate(priority));

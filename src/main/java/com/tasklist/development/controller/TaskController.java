@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
 
+import static org.apache.logging.log4j.util.Strings.isBlank;
+
 @RestController
 @RequestMapping("/task")
 @Slf4j
@@ -31,7 +33,7 @@ public class TaskController {
     @PostMapping("/all")
     public ResponseEntity getAll(@RequestBody String email) {
         log.info("Call TaskController: get all task for user================================");
-        if (email == null || email.isBlank()) {
+        if (email == null || isBlank(email)) {
             return new ResponseEntity("Title not must be null", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(taskService.findByUser(email));
@@ -45,7 +47,7 @@ public class TaskController {
         if (task.getId() != null && task.getId() != 0) {
             return new ResponseEntity("Id must be null", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (task.getTitle() == null || task.getTitle().isBlank()) {
+        if (task.getTitle() == null || isBlank(task.getTitle())) {
             return new ResponseEntity("Title not must be null", HttpStatus.NOT_ACCEPTABLE);
         }
         //получаем созданный в БД объект с новым id и отдаем клиенту
@@ -58,7 +60,7 @@ public class TaskController {
         if (task.getId() == null || task.getId() == 0) {
             return new ResponseEntity("Id not must be null", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (task.getTitle() == null || task.getTitle().isBlank()) {
+        if (task.getTitle() == null || isBlank(task.getTitle())) {
             return new ResponseEntity("Title not must be null", HttpStatus.NOT_ACCEPTABLE);
         }
         taskService.addOrUpdate(task);
