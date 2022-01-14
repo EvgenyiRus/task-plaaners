@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 @Service
 @Transactional
 @Slf4j
@@ -118,6 +120,16 @@ public class UserService {
 
     public Optional<Activity> findActivityByUuid(String uuid) {
         return activityRepository.findByUuid(uuid);
+    }
+
+    public boolean updatePassword(String password) {
+        if (isBlank(password)) {
+            return false;
+        }
+
+        // получение пользователя из Spring контейнера(все данные о пользователе берутся из JWT)
+        UserDetailsImpl user = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.updatePasswordByUserName(passwordEncoder.encode(password), user.getUsername()) == 1;
     }
 
     private Activity getActivity(User user) {

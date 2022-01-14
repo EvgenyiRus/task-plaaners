@@ -15,6 +15,7 @@ import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.*;
@@ -121,6 +122,15 @@ public class AuthController {
 
         // в ответе отправляем только кук, без тела запроса
         return ResponseEntity.ok().headers(httpHeaders).build();
+    }
+
+    @PostMapping("/update-password")
+    @PreAuthorize("USER")
+    public ResponseEntity<Boolean> updatePassword(@Nullable @RequestBody String password) {
+        if(!userService.updatePassword(password)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok(userService.updatePassword(password));
     }
 
     /*
