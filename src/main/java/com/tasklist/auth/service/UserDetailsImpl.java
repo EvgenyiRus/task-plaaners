@@ -24,7 +24,8 @@ public class UserDetailsImpl implements UserDetails {
 
     public UserDetailsImpl(User user) {
         this.user = user;
-        // получение списка прав пользователя
+
+        // получение списка прав пользователя(роль мб 1 и иметь несколько прав)
         authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toSet());

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -19,6 +20,12 @@ import org.springframework.security.web.session.SessionManagementFilter;
 
 @Configuration
 @EnableWebSecurity(debug = true) // вывод подробностей фильтров безопасности в лог
+
+/*
+ позволяет использовать аннотации pre/post в компонентах Spring
+ (@PreAuthorize для доступа к методам или контроллеру только с нужными правами)
+ */
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // для получение пользователя из БД
@@ -99,6 +106,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         /* отключаем на время разработки(для методов post put и др.
            которые изменяют данные, будут без ошибок)
          */
+
         http.csrf().disable();
         http.httpBasic().disable(); //отключаем стандартную авторизацию Spring
         http.formLogin().disable(); //отключаем стандартную форму логирования

@@ -51,7 +51,7 @@ public class AuthController {
         return "OK-no-auth";
     }
 
-    @PreAuthorize("USER") // метод сможет вызвать только пользователь с правами USER
+    @PreAuthorize("hasAnyAuthority('ADMIN')") // метод сможет вызвать только пользователь с правами ADMIN
     @PostMapping("/test-with-auth")
     public String testWithAuth() {
         return "OK-with-auth";
@@ -110,8 +110,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    @PreAuthorize("USER") // метод сможет вызвать только пользователь с правами USER
-    public ResponseEntity<User> logout () {
+    @PreAuthorize("hasAnyAuthority('USER')") // метод сможет вызвать только пользователь с правами USER
+    public ResponseEntity<User> logout() {
 
         // создание кук с истекшим сроком действия. Автоматически удалится браузером т.к. срок действия = 0
         HttpCookie cookie = cookieUtils.deleteCookie();
@@ -125,9 +125,9 @@ public class AuthController {
     }
 
     @PostMapping("/update-password")
-    @PreAuthorize("USER")
+    @PreAuthorize("hasAnyAuthority('USER')")
     public ResponseEntity<Boolean> updatePassword(@Nullable @RequestBody String password) {
-        if(!userService.updatePassword(password)) {
+        if (!userService.updatePassword(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         return ResponseEntity.ok(userService.updatePassword(password));
