@@ -30,18 +30,18 @@ public class UserDetailsImpl implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toSet());
     }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
+    // эти гетеры прописываем вручную (не через Lombok), т.к. данные получаем из объекта User
     public long getId() {
         return user.getId();
     }
 
     public String getEmail() {
         return user.getEmail();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
     }
 
     @Override

@@ -113,7 +113,6 @@ public class AuthController {
          чтобы следующие запросы на backend авторизовывать автоматически
         */
         String jwt = jwtUtils.createAccessToken(userDetails.getUser());
-
         /*
          создание кука cо значением JWT для аутентификации на сервере
          (клиент будет отправлять его автоматически на backend при каждом запросе)
@@ -141,15 +140,6 @@ public class AuthController {
 
         // в ответе отправляем только кук, без тела запроса
         return ResponseEntity.ok().headers(httpHeaders).build();
-    }
-
-    @PostMapping("/update-password")
-    @PreAuthorize("hasAnyAuthority('USER')")
-    public ResponseEntity<Boolean> updatePassword(@Nullable @RequestBody String password) {
-        if (!userService.updatePassword(password)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        return ResponseEntity.ok(userService.updatePassword(password));
     }
 
     // повторная отправка письма для активации аккаунта
@@ -180,6 +170,17 @@ public class AuthController {
             emailService.sendResetPasswordEmail(user.getEmail(), jwtUtils.createResetPasswordToken(user));
         }
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/update-password")
+    @PreAuthorize("hasAnyAuthority('USER')")
+    public ResponseEntity<Boolean> updatePassword(@Nullable @RequestBody String password) {
+        // кол-во обновленных записей (в нашем случае должно быть 1, т.к. обновляем пароль одного пользователя)
+        boolean isUpdatedCountMoreOne = userService.updatePassword(password);
+        if(!isUpdatedCountMoreOne) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok(isUpdatedCountMoreOne);
     }
 
     /*

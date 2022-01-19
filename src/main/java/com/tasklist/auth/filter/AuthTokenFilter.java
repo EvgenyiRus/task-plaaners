@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
 /**
  * Класс, который отвечает за весь функционал аутентификации/авторизации, перехватывает все запросы
  * (login, logout, получение списка задач, редактирование и пр.)
@@ -37,6 +38,10 @@ import java.util.List;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
+
+    // стандартный префикс, который принято добавлять перед значением JWT в заголовке Authorization
+    public static final String BEARER_PREFIX = "Bearer ";
+
     private JwtUtils jwtUtils;
     private CookieUtils cookieUtils;
 
@@ -66,6 +71,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         // если закрытй API и пользоветель еще не аутентифицирован
         if (isRequestToNotPublicAPI) { // && isAuthenticationRequest) {
             String jwt = cookieUtils.getCookieAccessToken(httpServletRequest);
+
+            // т.к. при обновлении пароля запрос(GET) идет от frontend, то передать кук с JWT не получится =>
+            // передача идет с новым запросом POST на сервер с заголовком "Authorization"
+            if (httpServletRequest.getRequestURI().contains("/update-password")) {
+                jwt = getJwtFromHeader(httpServletRequest);
+            }
             if (jwt == null) {
                 throw new AuthenticationCredentialsNotFoundException("token not found");
             }
@@ -80,21 +91,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             UserDetailsImpl userDetails = new UserDetailsImpl(user);
 
             /*
-                Необходимо считать все данные пользователя из JWT, чтобы получить userDetails,
-                добавить его в Spring контейнер (авторизовать) и не делать ни одного запроса в БД
-                Запрос в БД выполняется только 1 раз, когда пользователь залогинился.
-                После этого аутентификация/авторизация проходит автоматически с помощью JWT
-                Создается объект userDetails на основе данных JWT (все поля, кроме пароля)
+              Необходимо считать все данные пользователя из JWT, чтобы получить userDetails,
+              добавить его в Spring контейнер (авторизовать) и не делать ни одного запроса в БД
+              Запрос в БД выполняется только 1 раз, когда пользователь залогинился.
+              После этого аутентификация/авторизация проходит автоматически с помощью JWT
+              Создается объект userDetails на основе данных JWT (все поля, кроме пароля)
              */
 
             /*
-                Создание объекта UsernamePasswordAuthenticationToken
-                (не используется пароль и не вызывается метод authenticate,
-                как в методе login - это уже сделано ранее и был создан jwt)
-                Привязка UsernamePasswordAuthenticationToken к пользователю
-                Добавление объекта UsernamePasswordAuthenticationToken в Spring контейнер
-                - тем самым Spring будет видеть, что к пользователю привязан объект authentication -
-                соответственно он успешно залогинен
+              Создание объекта UsernamePasswordAuthenticationToken
+              (не используется пароль и не вызывается метод authenticate,
+              как в методе login - это уже сделано ранее и был создан jwt)
+              Привязка UsernamePasswordAuthenticationToken к пользователю
+              Добавление объекта UsernamePasswordAuthenticationToken в Spring контейнер
+              - тем самым Spring будет видеть, что к пользователю привязан объект authentication -
+              соответственно он успешно залогинен
              */
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities()); // пароль не нужен
@@ -109,12 +120,24 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse); // проброс дальше в контроллер
     }
 
+    private String getJwtFromHeader(HttpServletRequest httpServletRequest) {
+        String header = httpServletRequest.getHeader("Authorization");
+        boolean b = !header.contains(BEARER_PREFIX);
+        boolean c = isBlank(header);
+        if (isBlank(header) && !header.contains(BEARER_PREFIX)) {
+            throw new AuthenticationCredentialsNotFoundException("Token not found or header request is not correct");
+        }
+
+        // вырезаем BEARER, чтобы получить чистое значение jwt
+        return header.substring(7);
+    }
+
     // подготовка списка разрешенных URL (открытых API), которые не требуют проверки JWT
     private List<String> getPermitUrls() {
         return Arrays.asList(
                 "register", // регистрация нового пользователя
                 "login", // аутентификация (логин-пароль)
-                "activate-account", // активация нового пользователя
+                "account-activate", // активация нового пользователя
                 "resend-activate-email", // запрос о повторной отправки письма активации
                 "send-reset-password-email", // запрос на отправку письма об обновлении пароля
                 "test-no-auth", // тестовый URL для проверки работы backend

@@ -30,6 +30,8 @@ public class User {
     @Column
     private String username;
 
+    // обратная ссылка - указываем поле "user" из Activity, которое ссылается на User
+    // Activity имеет внешний ключ на User
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Activity activity;
 

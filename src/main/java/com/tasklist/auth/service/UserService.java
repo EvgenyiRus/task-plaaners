@@ -37,10 +37,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final ActivityRepository activityRepository;
 
-    /*
-      объект, позволяющий провести Аутентификацию
-      делегирует вызов Authenticate () правильному AuthenticationProvider
-     */
+    // объект, позволяющий провести Аутентификацию. Делегирует вызов Authenticate () правильному AuthenticationProvider
     private final AuthenticationManager authenticationManager;
 
     @Autowired
@@ -105,10 +102,7 @@ public class UserService {
         activityRepository.save(activity);
     }
 
-    /*
-    активация
-    true конвертируется в 1 (см. Аctivity - @Type(type = "org.hibernate.type.NumericBooleanType")), false - 0
-     */
+    // активация. true конвертируется в 1 (см. Аctivity - @Type(type = "org.hibernate.type.NumericBooleanType")), false - 0
     public int activate(boolean activate, String uuid) throws UserActivateException {
         Activity activity = activityRepository.findByUuid(uuid)
                 .orElseThrow(() -> new UsernameNotFoundException("Activity not found with uuid:" + uuid));
@@ -120,26 +114,22 @@ public class UserService {
         return activityRepository.setActivity(activate, uuid);
     }
 
-    public Optional<Activity> findActivityByUuid(String uuid) {
-        return activityRepository.findByUuid(uuid);
-    }
-
+    // смена пароля
     public boolean updatePassword(String password) {
         if (isBlank(password)) {
             return false;
         }
-
         // получение пользователя из Spring контейнера(все данные о пользователе берутся из JWT)
         UserDetailsImpl user = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.updatePasswordByUserName(passwordEncoder.encode(password), user.getUsername()) == 1;
     }
 
-    //Проверка на существующего пользователя по Login
+    // проверка на существующего пользователя по Login
     private boolean isUserExistByUsername(String username) {
         return userRepository.getCountByUsername(username) > 0;
     }
 
-    //... по email
+    // ... по email
     private boolean isUserExistByUserEmail(String email) {
         return userRepository.getCountByUserEmail(email) > 0;
     }

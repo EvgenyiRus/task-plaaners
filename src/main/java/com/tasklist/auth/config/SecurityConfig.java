@@ -19,7 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.session.SessionManagementFilter;
 
-
 /*
  prePostEnabled позволяет использовать аннотации pre/post в компонентах Spring
  (@PreAuthorize для доступа к методам или контроллеру только с нужными правами)
@@ -27,12 +26,11 @@ import org.springframework.security.web.session.SessionManagementFilter;
 @Configuration
 @EnableWebSecurity(debug = true) // вывод подробностей фильтров безопасности в лог
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@EnableAsync // позволяет ассинхронно выполнять методы
+@EnableAsync
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // для получение пользователя из БД
     private UserDetailsServiceImpl userDetailsService;
-
     // перехватывает все входящие запросы (jwt если необходимо)
     private AuthTokenFilter authTokenFilter;
     private ExceptionHandlerFilter exceptionHandlerFilter;

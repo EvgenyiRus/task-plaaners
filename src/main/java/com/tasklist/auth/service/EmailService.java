@@ -42,104 +42,49 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-//    // отправление пользователю письма активации
-//    public void sendActivationEmail(String email, String username, String uuid) {
-//
-//        /*
-//          ссылка на frontend перейдя по которой должна произойти активация аккаунта
-//          Прикрепляем uuid к URL как get-параметр.
-//          Клиент при нажатии на ссылку из письма - получит этот uuid
-//         */
-//        String url = urlClient + "/activate-account/" + uuid;
-//
-//        // html сообщение
-//        String message = String.format("Здравствуйте, %s! <br/>" +
-//                "Для подтверждения аккаунта перейдите по ссылке <a href='%s'/>", username, url);
-//        sendEmail(email, message);
-//    }
-//
-//    // к письму прикрепляется токен для последующей авторизации на backend
-//    public void sendResetPasswordEmail(String email, String token) {
-//
-//        // ссылка на frontend перейдя по которой должен произойти сброс пароля
-//        String url = urlClient + "/update-password/" + token;
-//
-//        // html сообщение
-//        String message = String.format("Здравствуйте. <br/>" +
-//                "Для сброса пароля перейдите по ссылке <a href='%s'/>", url);
-//        sendEmail(email, message);
-//    }
-//
-//    @Async
-//    Future<Boolean> sendEmail(String email, String message) {
-//        try {
-//            // письмо, в виде HTML страницы(по умолчанию - текстовый формат)
-//            MimeMessage mimeMessage = mailSender.createMimeMessage();
-//
-//            // вспомогательный элемент для указания параметров отправки письма
-//            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
-//            // html сообщение
-//
-//            mimeMessage.setContent(message, "text/html"); // тип письма
-//            mimeMessageHelper.setTo(email); // адрес получателя
-//            mimeMessageHelper.setFrom(emailFrom); // адрес отправителя
-//            mimeMessageHelper.setSubject("Требуется активация аккаунта"); // тема письма
-//            mimeMessageHelper.setText(message, true); // явное указание на HTML страницу
-//            mailSender.send(mimeMessage);
-//            return new AsyncResult<>(true);
-//        } catch (MessagingException exception) {
-//            exception.printStackTrace();
-//        }
-//        return new AsyncResult<>(false);
-//    }
+    // отправление пользователю письма активации
+    public void sendActivationEmail(String email, String username, String uuid) {
 
-        // отправление пользователю письма активации
-    @Async
-    public Future<Boolean> sendActivationEmail(String email, String username, String uuid) {
-        try {
+        /*
+          ссылка на frontend перейдя по которой должна произойти активация аккаунта
+          Прикрепляем uuid к URL как get-параметр.
+          Клиент при нажатии на ссылку из письма - получит этот uuid
+         */
+        String url = urlClient + "/activate-account/" + uuid;
 
-            // письмо, в виде HTML страницы(по умолчанию - текстовый формат)
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-
-            // вспомогательный элемент для указания параметров отправки письма
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
-
-            // ссылка на frontend перейдя по которой должна произойти активация аккаунта
-            String url = urlClient + "/activate-account/" + uuid;
-
-            // текст письма в формате HTML
-            String message = String.format("Здравствуйте.<br/><br/>" +
-                            "Вы создали аккаунт для веб приложения \"Планировщик дел\": %s <br/><br/>" +
-                            "<a href='%s'>%s</a><br/><br/>",  username, url, "Для подтверждения регистрации нажмите на эту ссылку");
-            mimeMessage.setContent(message, "text/html"); // тип письма
-            mimeMessageHelper.setTo(email); // адрес получателя
-            mimeMessageHelper.setFrom(emailFrom); // адрес отправителя
-            mimeMessageHelper.setSubject("Требуется активация аккаунта"); // тема письма
-            mimeMessageHelper.setText(message, true); // явное указание на HTML страницу
-            mailSender.send(mimeMessage);
-            return new AsyncResult<>(true);
-        } catch (MessagingException exception) {
-            exception.printStackTrace();
-        }
-        return new AsyncResult<>(false);
+        // текст письма в формате HTML
+        String message = String.format("Здравствуйте.<br/><br/>" +
+                "Вы создали аккаунт для веб приложения \"Планировщик дел\": %s <br/><br/>" +
+                "<a href='%s'>%s</a><br/><br/>",  username, url, "Для подтверждения регистрации нажмите на эту ссылку");
+        sendEmail(email, message);
     }
 
     // к письму прикрепляется токен для последующей авторизации на backend
+    public void sendResetPasswordEmail(String email, String token) {
+
+        // ссылка на frontend перейдя по которой должен произойти сброс пароля
+        String url = urlClient + "/update-password/" + token;
+
+        // текст письма в формате HTML
+        String message = String.format(
+                "Здравствуйте.<br/><br/>" +
+                        "Вы запросили сброс пароля.<br/><br/>" +
+                        "Если это были не вы - просто удалите это письмо.<br/><br/> " +
+                        "Нажмите на ссылку ниже, если хотите сбросить пароль: <br/><br/> " +
+                        "<a href=%s/>%s<br/><br/>", url, "Сбросить пароль");
+        sendEmail(email, message);
+    }
+
     @Async
-    public Future<Boolean> sendResetPasswordEmail(String email, String token) {
+    Future<Boolean> sendEmail(String email, String message) {
         try {
             // письмо, в виде HTML страницы(по умолчанию - текстовый формат)
             MimeMessage mimeMessage = mailSender.createMimeMessage();
 
             // вспомогательный элемент для указания параметров отправки письма
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
-
-            // ссылка на frontend перейдя по которой должен произойти сброс пароля
-            String url = urlClient + "/update-password/" + token;
-
             // html сообщение
-            String message = String.format("Здравствуйте. <br/>" +
-                    "Для сброса пароля перейдите по ссылке <a href='%s'/>", url);
+
             mimeMessage.setContent(message, "text/html"); // тип письма
             mimeMessageHelper.setTo(email); // адрес получателя
             mimeMessageHelper.setFrom(emailFrom); // адрес отправителя
