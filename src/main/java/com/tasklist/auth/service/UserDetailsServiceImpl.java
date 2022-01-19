@@ -10,11 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-/* сервис, который используется для проверки пользователя в БД при аутентификации/авторизации (логин-пароль)
-    метод loadUserByUsername автоматически вызывается Spring контейнером (когда пытаемся залогинить пользователя методом authenticate), чтобы найти пользователя в БД.
-    затем Spring сравнивает хэши паролей (введенного и фактического) и выдает результат (все ок или выбрасывает исключение, которое можно оправить клиенту)
-    также, метод loadUserByUsername можно вызывать самим, вручную, когда необходимо проверить наличие пользователя в БД (по username или email).
-    чтобы этот класс был задействован в аутентификации - его нужно указать в Spring настройках в методе configure(AuthenticationManagerBuilder authenticationManagerBuilder)
+/**
+ *  сервис, который используется для проверки пользователя в БД при аутентификации/авторизации (логин-пароль)
+    метод loadUserByUsername автоматически вызывается Spring контейнером (когда пытаемся залогинить пользователя
+    методом authenticate), чтобы найти пользователя в БД.
+    затем Spring сравнивает хэши паролей (введенного и фактического) и выдает результат
+    (все ок или выбрасывает исключение, которое можно оправить клиенту)
+    также, метод loadUserByUsername можно вызывать самим, вручную, когда необходимо проверить наличие пользователя
+    в БД (по username или email).
+    Чтобы этот класс был задействован в аутентификации - его нужно указать в Spring настройках
+    в методе configure(AuthenticationManagerBuilder authenticationManagerBuilder)
     класс обязательно должен реализовать интерфейс UserDetailsService, чтобы Spring "принимал" этот класс.
  */
 @Service
@@ -40,7 +45,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Transactional
-    // поиск пользователя при аутентификации по username или email
+    // поиск пользователя при аутентификации по id
     public UserDetails loadUserByUsername(Long id) throws UsernameNotFoundException {
         Optional<User> authUser = userRepository.findById(id);
         if (authUser.isEmpty()) {

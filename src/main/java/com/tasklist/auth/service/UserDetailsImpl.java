@@ -36,6 +36,14 @@ public class UserDetailsImpl implements UserDetails {
         return authorities;
     }
 
+    public long getId() {
+        return user.getId();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();

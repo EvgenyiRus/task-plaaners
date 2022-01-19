@@ -26,10 +26,23 @@ public class JwtUtils {
     private String jwtSecret; // секретный ключ для создания JWT
 
     @Value("${jwt.access_token-expiration}")
-    private int accessTokenExpiration; // время действия JWT
+    private int accessTokenExpiration; // время действия JWT для авторизации
 
-    // генерация JWT по данным пользователя
-    public String createJwtToken(User user) {
+    @Value("${jwt.reset_password-expiration}")
+    private int resetPasswordTokenExpiration; // время действия JWT для сброса пароля
+
+    // генерация JWT для доступа к данным
+    public String createAccessToken(User user) {
+        return createJwtToken(user, accessTokenExpiration);
+    }
+
+    // генерация JWT для сброса пароля
+    public String createResetPasswordToken(User user) {
+        return createJwtToken(user, resetPasswordTokenExpiration);
+    }
+
+    // генерация JWT по данным пользователя с нужным сроком действия
+    private String createJwtToken(User user, int duration) {
         Date currentDate = new Date();
 
         // добавление данных пользователя(claims) в JWT
@@ -39,7 +52,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .setClaims(claims) // добавление данных (claims - поля, записываемые в payload в токене)
                 .setIssuedAt(currentDate) // время начало действия JWT
-                .setExpiration(new Date(currentDate.getTime() + accessTokenExpiration)) // продолжительность действия JWT
+                .setExpiration(new Date(currentDate.getTime() + duration)) // продолжительность действия JWT
                 .signWith(SignatureAlgorithm.HS512, jwtSecret) // подписание данных секретным ключом. Кодировка массива байтов в base64.
                 .compact(); // преобразование массива байт в одну строку для читабельности
     }

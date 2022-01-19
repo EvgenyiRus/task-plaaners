@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -60,6 +59,10 @@ public class UserService {
                 () -> new NotFoundException(String.format("User not found with id = %s", id)));
     }
 
+    public Optional<Activity> findActivityByUserId(long id){
+        return activityRepository.findByUserId(id);
+    }
+
     // авторизация
     public UserDetailsImpl login(User user) {
 
@@ -78,7 +81,7 @@ public class UserService {
     }
 
     // регистрация
-    public void register(User user) throws UserExistException, RoleExistException {
+    public void register(User user, Activity activity) throws UserExistException, RoleExistException {
 
         // проверка на существование пользователя с необходимым логином или email
         if (isUserExistByUserEmail(user.getEmail())) {
@@ -99,7 +102,6 @@ public class UserService {
         userRepository.save(user);
 
         // активация пользователя
-        Activity activity = getActivity(user);
         activityRepository.save(activity);
     }
 
@@ -130,15 +132,6 @@ public class UserService {
         // получение пользователя из Spring контейнера(все данные о пользователе берутся из JWT)
         UserDetailsImpl user = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.updatePasswordByUserName(passwordEncoder.encode(password), user.getUsername()) == 1;
-    }
-
-    private Activity getActivity(User user) {
-        Activity activity = new Activity();
-        activity.setUser(user);
-
-        // получение уникольного UUID для активации пользователя
-        activity.setUuid(UUID.randomUUID().toString());
-        return activity;
     }
 
     //Проверка на существующего пользователя по Login

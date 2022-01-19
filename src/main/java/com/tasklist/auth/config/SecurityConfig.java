@@ -1,12 +1,13 @@
 package com.tasklist.auth.config;
 
+import com.tasklist.auth.filter.AuthTokenFilter;
 import com.tasklist.auth.filter.ExceptionHandlerFilter;
 import com.tasklist.auth.service.UserDetailsServiceImpl;
-import com.tasklist.auth.filter.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -18,18 +19,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.session.SessionManagementFilter;
 
-@Configuration
-@EnableWebSecurity(debug = true) // вывод подробностей фильтров безопасности в лог
 
 /*
- позволяет использовать аннотации pre/post в компонентах Spring
+ prePostEnabled позволяет использовать аннотации pre/post в компонентах Spring
  (@PreAuthorize для доступа к методам или контроллеру только с нужными правами)
  */
+@Configuration
+@EnableWebSecurity(debug = true) // вывод подробностей фильтров безопасности в лог
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableAsync // позволяет ассинхронно выполнять методы
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // для получение пользователя из БД
     private UserDetailsServiceImpl userDetailsService;
+
     // перехватывает все входящие запросы (jwt если необходимо)
     private AuthTokenFilter authTokenFilter;
     private ExceptionHandlerFilter exceptionHandlerFilter;

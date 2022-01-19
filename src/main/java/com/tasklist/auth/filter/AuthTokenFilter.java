@@ -5,7 +5,6 @@ import com.tasklist.auth.exception.JwtCommonException;
 import com.tasklist.auth.service.UserDetailsImpl;
 import com.tasklist.auth.utils.CookieUtils;
 import com.tasklist.auth.utils.JwtUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,9 +36,7 @@ import java.util.List;
  */
 
 @Component
-@Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
-
     private JwtUtils jwtUtils;
     private CookieUtils cookieUtils;
 
