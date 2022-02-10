@@ -4,6 +4,7 @@ import com.tasklist.auth.filter.AuthTokenFilter;
 import com.tasklist.auth.filter.ExceptionHandlerFilter;
 import com.tasklist.auth.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /*
  prePostEnabled позволяет использовать аннотации pre/post в компонентах Spring
@@ -27,7 +30,10 @@ import org.springframework.security.web.session.SessionManagementFilter;
 @EnableWebSecurity(debug = true) // вывод подробностей фильтров безопасности в лог
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableAsync
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
+
+    @Value("${client.url}")
+    private String urlClient;
 
     // для получение пользователя из БД
     private UserDetailsServiceImpl userDetailsService;
@@ -107,7 +113,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         /* отключаем на время разработки(для методов post put и др.
            которые изменяют данные, будут без ошибок)
          */
-
         http.csrf().disable();
         http.httpBasic().disable(); //отключаем стандартную авторизацию Spring
         http.formLogin().disable(); //отключаем стандартную форму логирования
@@ -127,4 +132,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // этот фильтр должен обязательно находиться перед всеми остальными фильтрами
         http.addFilterBefore(exceptionHandlerFilter, AuthTokenFilter.class);
     }
+
+    /*
+     * Настройка CORS, т.е. каким сайтам по каким url и какими методами можно делать запросы к веб-серверу
+     * https://sysout.ru/nastrojka-cors-v-spring-security/
+     * https://developer.mozilla.org/ru/docs/Web/HTTP/CORS
+     * */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**") // обращаться к приложению можно по любому внутреннему url — addMapping(«/**»)
+                .allowedOrigins(urlClient) // только сайт http://localhost:4200 может делать запросы
+                .allowedMethods("*") // запрос можно делать абсолютно всеми методами (GET, POST, PUT и т.д.)\
+                .allowedHeaders("*") // принимать любые заголовки
+                .allowCredentials(true); // разрешить отправлять куки для межсайтового запроса
+    }
+// или
+//    @Bean
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//            @Override
+//            public void addCorsMappings (CorsRegistry registry){
+//                registry.addMapping("/**") // обращаться к приложению можно по любому внутреннему url — addMapping(«/**»)
+//                        .allowedOrigins(urlClient) // только сайт http://localhost:4200 может делать запросы
+//                        .allowedMethods("*") // запрос можно делать абсолютно всеми методами (GET, POST, PUT и т.д.)\
+//                        .allowedHeaders("*") // принимать любые заголовки
+//                        .allowCredentials(true); // разрешить отправлять куки для межсайтового запроса
+//            }
+//        };
+//    }
 }

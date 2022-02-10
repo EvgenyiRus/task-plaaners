@@ -60,6 +60,7 @@ public class AuthController {
     @PostMapping("/test-no-auth")
     public String testNoAuth() {
         return "OK-no-auth";
+        
     }
 
     @PostMapping("/test-with-auth")

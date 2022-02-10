@@ -51,7 +51,7 @@ public class UserService {
         this.authenticationManager = authenticationManager;
     }
 
-    public User findById(Long id) throws NotFoundException {
+    public User findById(Long id) throws NotFoundException{
         return userRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(String.format("User not found with id = %s", id)));
     }
