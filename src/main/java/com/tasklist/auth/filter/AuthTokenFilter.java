@@ -122,8 +122,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private String getJwtFromHeader(HttpServletRequest httpServletRequest) {
         String header = httpServletRequest.getHeader("Authorization");
-        boolean b = !header.contains(BEARER_PREFIX);
-        boolean c = isBlank(header);
         if (isBlank(header) && !header.contains(BEARER_PREFIX)) {
             throw new AuthenticationCredentialsNotFoundException("Token not found or header request is not correct");
         }

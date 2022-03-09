@@ -37,12 +37,11 @@ dependencies {
 	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23' // коннектор для БД PostgreSQL
 
 	// https://projectlombok.org/setup/gradle
-	compileOnly 'org.projectlombok:lombok:1.18.12'
 	compileOnly group: 'org.apache.directory.studio', name: 'org.apache.commons.lang', version: '2.6'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools' //developmentOnly - не будет включено в production
-	annotationProcessor 'org.projectlombok:lombok'
-}
 
-test {
-	useJUnitPlatform()
+	// lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
 }

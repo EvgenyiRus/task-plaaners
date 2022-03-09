@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -57,6 +59,13 @@ public class CategoryController {
 
     @PatchMapping //Т.к. обновляем не весь объект а лишь его часть
     public ResponseEntity update(@RequestBody Category category) {
+        List<String> numbers = new ArrayList(Arrays.asList("first", "second", "third"));
+        for (String number : numbers) {
+            if ("third".equals(number)) {
+                numbers.add("fourth");
+            }
+        }
+        System.out.println(numbers.size());
         log.info("Call CategoryController: update category ===============================");
         if (category.getId() == null || category.getId() == 0) {
             return new ResponseEntity("Id not must be null", HttpStatus.NOT_ACCEPTABLE);

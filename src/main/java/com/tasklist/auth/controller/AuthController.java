@@ -186,7 +186,7 @@ public class AuthController {
 
     /*
      * Передача ошибки клиенту в формате Json
-     * AuthenticationException.class - обработка только ошибок, связанных с аутентификацией
+     * @ExceptionHandler(AuthenticationException) - обработка только ошибок, связанных с аутентификацией
      * Exception - всех ошибок
      */
     @ExceptionHandler(Exception.class) //@ExceptionHandler позволяет перехватывать ошибки
