@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     @Value("${client.url}")
     private String urlClient;
 
-    // для получение пользователя из БД
+    // для получения пользователя из БД
     private UserDetailsServiceImpl userDetailsService;
     // перехватывает все входящие запросы (jwt если необходимо)
     private AuthTokenFilter authTokenFilter;
@@ -82,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     /* исключение authTokenFilter из цепочки фильтров сервлетов для всех запросов
        (отключение вызова authTokenFilter в servlet контейнере т.к. добавили вручную в spring контейнер)
        баг? https://stackoverflow.com/questions/39314176/filter-invoke-twice-when-register-as-spring-bean
-    */
+     */
     @Bean
     public FilterRegistrationBean registrationBean(AuthTokenFilter authTokenFilter) {
         // FilterRegistrationBean - регистратор фильтров в сервлет контейнере
@@ -96,7 +96,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
         /* если используется другая клиентская технология (не SpringMVC, а например Angular, React и пр.),
             то выключаем встроенную Spring-защиту от CSRF атак,
             иначе запросы от клиента не будут обрабатываться, т.к. Spring Security будет пытаться в каждом входящем запроcе искать спец. токен для защиты от CSRF
-        */
+         */
 
         /* способ хранения сессии на сервере
            always - сохраняется JSESSIONID в куки браузера

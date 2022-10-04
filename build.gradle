@@ -24,24 +24,21 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // spring + jpa/hibernate
-	implementation 'org.springframework.boot:spring-boot-starter-web' // веб технологии
-	implementation 'org.springframework.boot:spring-boot-starter-security' // безопасность
-	implementation 'org.springframework.boot:spring-boot-starter-validation' // валидация объектов - начиная с springboot 2.3 нужно подключать отдельно (раньше библиотека подключалась автоматически)
-	implementation 'org.springframework.boot:spring-boot-starter-mail' // работа с почтой
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
-	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1' // библиотека для работы с jwt
-	// https://mvnrepository.com/artifact/org.postgresql/postgresql
-	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23' // коннектор для БД PostgreSQL
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
 
-	// https://projectlombok.org/setup/gradle
 	compileOnly group: 'org.apache.directory.studio', name: 'org.apache.commons.lang', version: '2.6'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools' //developmentOnly - не будет включено в production
 
-	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
